@@ -6,6 +6,9 @@
 out/
 build/
 build_debug/
+build-debug/
+build-release/
+build_static/
 CMakeLists.txt.user*
 CMakeCache.txt
 CMakeSettings.json
