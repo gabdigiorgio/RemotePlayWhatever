@@ -27,7 +27,7 @@ if(${SYSTEM_OS} STREQUAL "Win")
         set(OSW_DLL_PATH "${OSW_LIB_ROOT}/lib/${SYSTEM_OS}${SYSTEM_ARCH}/OpenSteamAPI64.dll")
         add_custom_command(TARGET OpenSteamAPI
             WORKING_DIRECTORY "${OSW_ROOT}"
-            COMMAND msbuild /p:Platform=x64 /p:Configuration=Release
+            COMMAND msbuild /p:Platform=x64 /p:Configuration=Release /p:PlatformToolset=${CMAKE_VS_PLATFORM_TOOLSET}
             VERBATIM
         )
     else()
@@ -35,7 +35,7 @@ if(${SYSTEM_OS} STREQUAL "Win")
         set(OSW_DLL_PATH "${OSW_LIB_ROOT}/lib/${SYSTEM_OS}${SYSTEM_ARCH}/OpenSteamAPI.dll")
         add_custom_command(TARGET OpenSteamAPI
             WORKING_DIRECTORY "${OSW_ROOT}"
-            COMMAND msbuild /p:Platform=Win32 /p:Configuration=Release
+            COMMAND msbuild /p:Platform=Win32 /p:Configuration=Release /p:PlatformToolset=${CMAKE_VS_PLATFORM_TOOLSET}
             VERBATIM
         )
     endif()
@@ -51,12 +51,19 @@ endif()
 
 
 
-find_package(wxWidgets COMPONENTS core base adv)
-if(NOT wxWidgets_FOUND)
-    message(FATAL_ERROR "wxWidgets not found!")
+find_package(wxWidgets CONFIG QUIET)
+if(wxWidgets_FOUND)
+    # vcpkg CONFIG mode
+    set(WX_LIBS wx::core wx::base wx::adv)
+else()
+    # Traditional FindwxWidgets
+    find_package(wxWidgets COMPONENTS core base adv)
+    if(NOT wxWidgets_FOUND)
+        message(FATAL_ERROR "wxWidgets not found!")
+    endif()
+    include(${wxWidgets_USE_FILE})
+    set(WX_LIBS ${wxWidgets_LIBRARIES})
 endif()
-
-include(${wxWidgets_USE_FILE})
 
 set(APPSRCs "RemotePlayWhatever.cpp"
             "SteamStuff.h"
@@ -90,7 +97,7 @@ add_dependencies(RemotePlayWhatever OpenSteamAPI)
 
 target_compile_definitions(RemotePlayWhatever PRIVATE STEAMWORKS_CLIENT_INTERFACES)
 target_include_directories(RemotePlayWhatever PUBLIC ${OSW_INCLUDE_PATH} ${wxWidgets_INCLUDE_DIRS})
-target_link_libraries(RemotePlayWhatever ${OSW_LIB_PATH} ${wxWidgets_LIBRARIES})
+target_link_libraries(RemotePlayWhatever ${OSW_LIB_PATH} ${WX_LIBS})
 if(${SYSTEM_OS} STREQUAL "Linux")
     target_link_libraries(RemotePlayWhatever ${CMAKE_DL_LIBS})
     set_target_properties(RemotePlayWhatever PROPERTIES OUTPUT_NAME "remoteplaywhatever")
