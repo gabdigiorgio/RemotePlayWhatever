@@ -27,7 +27,7 @@ if(${SYSTEM_OS} STREQUAL "Win")
         set(OSW_DLL_PATH "${OSW_LIB_ROOT}/lib/${SYSTEM_OS}${SYSTEM_ARCH}/OpenSteamAPI64.dll")
         add_custom_command(TARGET OpenSteamAPI
             WORKING_DIRECTORY "${OSW_ROOT}"
-            COMMAND msbuild /p:Platform=x64 /p:Configuration=Release /p:PlatformToolset=${CMAKE_VS_PLATFORM_TOOLSET}
+            COMMAND msbuild /p:Platform=x64 /p:Configuration=Release /p:PlatformToolset=${CMAKE_VS_PLATFORM_TOOLSET} /p:RuntimeLibrary=MultiThreaded
             VERBATIM
         )
     else()
@@ -35,7 +35,7 @@ if(${SYSTEM_OS} STREQUAL "Win")
         set(OSW_DLL_PATH "${OSW_LIB_ROOT}/lib/${SYSTEM_OS}${SYSTEM_ARCH}/OpenSteamAPI.dll")
         add_custom_command(TARGET OpenSteamAPI
             WORKING_DIRECTORY "${OSW_ROOT}"
-            COMMAND msbuild /p:Platform=Win32 /p:Configuration=Release /p:PlatformToolset=${CMAKE_VS_PLATFORM_TOOLSET}
+            COMMAND msbuild /p:Platform=Win32 /p:Configuration=Release /p:PlatformToolset=${CMAKE_VS_PLATFORM_TOOLSET} /p:RuntimeLibrary=MultiThreaded
             VERBATIM
         )
     endif()
